@@ -1,1 +1,28 @@
+name: Build LaTeX document
+on: [push] # Déclencheur du workflow, ici sur chaque push
+jobs:
+  build_latex: # Nom du job
+    runs-on: ubuntu-latest
+    steps:
+      # Étape 1 : Installation des dépendances LaTeX
+      - name: Install Lualatex
+        run: sudo apt update && sudo apt install texlive-luatex texlive-latex-base texlive-latex-recommended texlive-pictures texlive-latex-extra ghostscript texlive-fonts-extra
 
+      - name: Checkout the code of the repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build PDF
+        run: bash compile-latex.sh # Exécute le script pour compiler le PDF
+
+      # Étape 4 : Compression du fichier PDF généré
+      - name: Ghostscript compress PDF
+        run: bash compress-pdf.sh # Exécute le script pour compresser le PDF
+
+      # Étape 5 : Téléchargement du PDF compressé comme artefact
+      - name: Upload compressed PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: compressed-pdf # Nom sous lequel le PDF sera disponible
+          path: doc/build/pdf/Qualité-Code-Source-L3-CSI-readable.pdf # Chemin du fichier PDF compressé
