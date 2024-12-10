@@ -23,12 +23,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended
 
-      # Étape 3 : Compiler le fichier LaTeX
+      # Étape 3 : Diagnostiquer les fichiers
+      - name: Lister les fichiers du répertoire
+        run: ls -la
+
+      # Étape 4 : Compiler le fichier LaTeX
       - name: Compiler le fichier LaTeX
         run: |
+          mkdir -p output
           pdflatex -interaction=nonstopmode -output-directory=output ./mon_fichier.tex
 
-      # Étape 4 : Ajouter le PDF en tant qu'artifact
+      # Étape 5 : Ajouter le PDF en tant qu'artifact
       - name: Sauvegarder le PDF généré
         uses: actions/upload-artifact@v3
         with:
