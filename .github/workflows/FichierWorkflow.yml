@@ -1,28 +1,36 @@
-name: Build LaTeX document
-on: [push] # Déclencheur du workflow, ici sur chaque push
+name: Génération de PDF avec LaTeX
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
 jobs:
-  build_latex: # Nom du job
+  build_pdf:
     runs-on: ubuntu-latest
+
     steps:
-      # Étape 1 : Installation des dépendances LaTeX
-      - name: Install Lualatex
-        run: sudo apt update && sudo apt install texlive-luatex texlive-latex-base texlive-latex-recommended texlive-pictures texlive-latex-extra ghostscript texlive-fonts-extra
+      # Étape 1 : Vérifier le dépôt
+      - name: Checkout du code
+        uses: actions/checkout@v3
 
-      - name: Checkout the code of the repository
-        uses: actions/checkout@v4
+      # Étape 2 : Installer LaTeX
+      - name: Installer LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y texlive-latex-base texlive-latex-extra texlive-fonts-recommended
+
+      # Étape 3 : Compiler le fichier LaTeX
+      - name: Compiler le fichier LaTeX
+        run: |
+          pdflatex -interaction=nonstopmode -output-directory=output ./mon_fichier.tex
+
+      # Étape 4 : Ajouter le PDF en tant qu'artifact
+      - name: Sauvegarder le PDF généré
+        uses: actions/upload-artifact@v3
         with:
-          submodules: recursive
-
-      - name: Build PDF
-        run: bash compile-latex.sh # Exécute le script pour compiler le PDF
-
-      # Étape 4 : Compression du fichier PDF généré
-      - name: Ghostscript compress PDF
-        run: bash compress-pdf.sh # Exécute le script pour compresser le PDF
-
-      # Étape 5 : Téléchargement du PDF compressé comme artefact
-      - name: Upload compressed PDF
-        uses: actions/upload-artifact@v4
-        with:
-          name: compressed-pdf # Nom sous lequel le PDF sera disponible
-          path: doc/build/pdf/Qualité-Code-Source-L3-CSI-readable.pdf # Chemin du fichier PDF compressé
+          name: fichier-pdf
+          path: output/mon_fichier.pdf
